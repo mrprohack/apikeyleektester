@@ -54,7 +54,10 @@ def scan_directory(directory_path):
     """Scan all files in a directory recursively for potential API key leaks."""
     all_leaks = {}
 
-    for root, _, files in os.walk(directory_path):
+    for root, dirs, files in os.walk(directory_path):
+        # Skip .git directories
+        dirs[:] = [d for d in dirs if d != '.git']
+        
         for file in files:
             file_path = os.path.join(root, file)
             leaks = scan_file(file_path)
@@ -62,7 +65,7 @@ def scan_directory(directory_path):
                 all_leaks[file_path] = leaks
 
     return all_leaks
-
+    
 def main():
     parser = argparse.ArgumentParser(description="Scan program files for potential API key leaks.")
     parser.add_argument("path", help="Path to the program file or directory")
