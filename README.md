@@ -23,12 +23,7 @@ It detects:
 git clone https://github.com/mrprohack/apikeyleektester
 cd https://github.com/mrprohack/apikeyleektester
 ```
-2. Install Python (if not already installed):
+2. Run the code
 ```bash
-sudo apt install python3
+python apikeyleektester.py exmple.py
 ```
-3. Create a single Python file:
-```bash
-nano api_key_leak_detector.py
-```
-
