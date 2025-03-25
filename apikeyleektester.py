@@ -34,17 +34,20 @@ API_PATTERNS = [
 
 def scan_file(file_path):
     """Scan a file for potential API key leaks."""
-    leaks = []
+    leaks = set()  # Use a set to store unique leaks
 
     with open(file_path, 'r', errors='ignore') as file:
         content = file.read()
 
         for pattern in API_PATTERNS:
             matches = re.findall(pattern, content)
-            if matches:
-                leaks.extend(matches)
+            for match in matches:
+                if isinstance(match, tuple):
+                    leaks.add(match[0])
+                else:
+                    leaks.add(match)
 
-    return leaks
+    return list(leaks)
 
 def scan_directory(directory_path):
     """Scan all files in a directory recursively for potential API key leaks."""
@@ -78,10 +81,7 @@ def main():
         for file_path, leaks in results.items():
             print(f"{file_path}:")
             for leak in leaks:
-                if isinstance(leak, tuple):
-                    print(f"  🔥 {leak[0]}")
-                else:
-                    print(f"  🔥 {leak}")
+                print(f"  🔥 {leak}")
     else:
         print("\n✅ No API keys found.")
 
@@ -90,10 +90,7 @@ def main():
             for file_path, leaks in results.items():
                 output_file.write(f"{file_path}:\n")
                 for leak in leaks:
-                    if isinstance(leak, tuple):
-                        output_file.write(f"  🔥 {leak[0]}\n")
-                    else:
-                        output_file.write(f"  🔥 {leak}\n")
+                    output_file.write(f"  🔥 {leak}\n")
 
 if __name__ == "__main__":
     main()
