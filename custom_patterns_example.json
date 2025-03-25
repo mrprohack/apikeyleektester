@@ -1,0 +1,7 @@
+{
+  "My Custom API Key": "(custom-api-key-[a-zA-Z0-9]{20})",
+  "Internal Token": "(internal-[0-9]{10}-[a-z]{8})",
+  "Company Authentication Token": "(auth_[a-f0-9]{32})",
+  "Legacy Database Credentials": "(db_cred:[a-zA-Z0-9+/]{40}=)",
+  "Custom OAuth Format": "(oauth2_[a-zA-Z0-9_-]{64})"
+} 
