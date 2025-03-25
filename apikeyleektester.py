@@ -69,6 +69,8 @@ def main():
                        help="Suppress progress output, display only findings")
     parser.add_argument("--no-git-files", action="store_true",
                        help="Exclude all Git-related files from scanning (.git directory and its contents)")
+    parser.add_argument("--skip", nargs="+", default=None,
+                       help="Specific files or folders to skip during scanning (absolute or relative paths)")
     args = parser.parse_args()
 
     # Load config file if provided
@@ -89,6 +91,15 @@ def main():
     exclude_patterns = DEFAULT_EXCLUDE_PATTERNS.copy()
     if args.exclude:
         exclude_patterns.extend(args.exclude)
+        
+    # Add specific paths to skip
+    if args.skip:
+        for skip_path in args.skip:
+            # Convert to absolute path if relative
+            abs_skip_path = os.path.abspath(skip_path) if not os.path.isabs(skip_path) else skip_path
+            exclude_patterns.append(abs_skip_path)
+            # Also add a pattern for glob matching
+            exclude_patterns.append(f"{skip_path}/**")
         
     # Add gitignore exclusions if scanning a git repository
     if args.git_scan or args.git_history:

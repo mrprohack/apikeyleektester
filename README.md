@@ -53,6 +53,9 @@ python apikeyleektester.py /path/to/your/code --git-scan
 # Scan with custom exclude patterns and 4 context lines
 python apikeyleektester.py /path/to/your/code --context 4 --exclude "*.log" "backup/*"
 
+# Skip specific folders or files
+python apikeyleektester.py /path/to/your/code --skip "node_modules" "/path/to/specific/file.js" "test/fixtures"
+
 # Export results to JSON
 python apikeyleektester.py /path/to/your/code --format json --output results.json
 
@@ -94,6 +97,7 @@ python apikeyleektester.py /path/to/your/code --incremental
 - `-o, --output`: Path to save the scan results
 - `--format`: Output format (text, json, csv, or html)
 - `--exclude`: Patterns of files/directories to exclude
+- `--skip`: Specific files or folders to skip during scanning (absolute or relative paths)
 - `--context`: Number of context lines to show before and after findings
 - `--workers`: Number of worker threads for parallel scanning
 - `--custom-patterns`: Path to JSON file with custom regex patterns
@@ -117,6 +121,9 @@ You can use YAML or JSON configuration files to store your scan settings:
 exclude:
   - "*.log"
   - "tests/fixtures/*"
+skip:
+  - "node_modules"
+  - "/path/to/specific/file.js"
 format: "html"
 output: "api_key_scan_report.html"
 context: 3

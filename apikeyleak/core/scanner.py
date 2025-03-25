@@ -24,11 +24,25 @@ def should_skip_file(file_path: str, exclude_patterns: List[str]) -> bool:
     # First check if it's a Git file
     if is_git_file(file_path):
         return True
+    
+    # Get absolute path for comparison
+    abs_file_path = os.path.abspath(file_path)
         
     # Then check against exclude patterns
     for pattern in exclude_patterns:
+        # Check for exact path match (both relative and absolute)
+        if pattern == file_path or pattern == abs_file_path:
+            return True
+            
+        # Check for glob pattern match
         if fnmatch.fnmatch(file_path, pattern) or fnmatch.fnmatch(os.path.basename(file_path), pattern):
             return True
+            
+        # Check if file is in a skipped directory
+        if os.path.isdir(pattern) and (file_path.startswith(pattern + os.sep) or 
+                                       abs_file_path.startswith(pattern + os.sep)):
+            return True
+            
     return False
 
 def get_context_lines(lines: List[str], line_num: int, context_size: int = 2) -> Tuple[List[str], List[str]]:
