@@ -1,0 +1,73 @@
+# Cursor Rules for API Key Leak Testing Tool
+
+## Project Structure
+This is an API key leak detection tool with the following structure:
+```
+.
+├── apikeyleak                 # Main package directory
+│   ├── cli.py                 # Command-line interface
+│   ├── core                   # Core functionality
+│   │   ├── __init__.py
+│   │   ├── models.py          # Data models
+│   │   ├── patterns.py        # Pattern definitions for API key detection
+│   │   └── scanner.py         # Core scanning logic
+│   ├── git                    # Git integration
+│   │   ├── __init__.py
+│   │   └── integration.py     # Git integration functionality
+│   ├── __init__.py
+│   ├── output                 # Output handling
+│   │   ├── exporters.py       # Export results to different formats
+│   │   └── __init__.py
+│   └── utils                  # Utility functions
+│       ├── config.py          # Configuration management
+│       ├── helpers.py         # Helper utilities
+│       └── __init__.py
+├── apikeyleektester.py        # Main entry point
+├── config_example.yaml        # Example configuration
+├── custom_patterns_example.json # Example custom patterns
+├── example.py                 # Usage example
+├── git_hook_script.py         # Git hook integration
+├── LICENSE
+├── README.md
+├── requirements.txt           # Project dependencies
+├── setup.py                   # Package setup
+├── test_files                 # Test files for validation
+│   ├── config
+│   │   └── credentials.yaml
+│   ├── javascript
+│   │   └── config.js
+│   └── python
+│       └── api_keys.py
+└── test_report.html           # Test results
+```
+
+## Git Operations
+When making changes to the codebase:
+1. Always explain what files will be modified before making changes
+2. After code changes, suggest appropriate git commands to add and commit changes
+3. Use conventional commit messages:
+   - feat: for new features
+   - fix: for bug fixes
+   - docs: for documentation changes
+   - test: for test additions or modifications
+   - refactor: for code changes that neither fix bugs nor add features
+   - chore: for changes to the build process, etc.
+
+## Auto Git Commands
+When suggesting git commands, prefer:
+```
+git add [specific files] # Instead of git add .
+git commit -m "[conventional commit message]"
+```
+
+## Code Review Guidelines
+1. Check for exposed API keys or credentials
+2. Ensure proper error handling
+3. Verify imports are organized and necessary
+4. Make sure new code follows existing style
+
+## Help Context
+This project is an API key leak detection tool that:
+- Scans files for potential API keys and credentials
+- Integrates with git to prevent committing sensitive information
+- Can be used as a pre-commit hook or standalone scanner 
