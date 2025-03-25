@@ -1,10 +1,6 @@
 import re
 import argparse
-import logging
 import os
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 # Extended list of regex patterns to detect various API keys
 API_PATTERNS = [
@@ -78,16 +74,16 @@ def main():
         results = {args.path: scan_file(args.path)}
 
     if results:
-        logging.info(f"\n🔴 Potential API keys found:\n")
+        print("\n🔴 Potential API keys found:\n")
         for file_path, leaks in results.items():
-            logging.info(f"{file_path}:")
+            print(f"{file_path}:")
             for leak in leaks:
                 if isinstance(leak, tuple):
-                    logging.info(f"  🔥 {leak[0]}")
+                    print(f"  🔥 {leak[0]}")
                 else:
-                    logging.info(f"  🔥 {leak}")
+                    print(f"  🔥 {leak}")
     else:
-        logging.info("\n✅ No API keys found.")
+        print("\n✅ No API keys found.")
 
     if args.output:
         with open(args.output, 'w') as output_file:
