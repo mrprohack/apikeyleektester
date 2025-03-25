@@ -9,7 +9,37 @@ from colorama import Fore, Style
 from tqdm import tqdm
 
 from apikeyleak.core.models import LeakFinding
-from apikeyleak.core.scanner import scan_file, should_skip_file
+
+def is_git_file(file_path: str) -> bool:
+    """Check if a file is a Git file that should be excluded from scanning."""
+    # Normalize path separators for cross-platform compatibility
+    normalized_path = file_path.replace('\\', '/')
+    
+    # Check if the file is in .git directory
+    if '/.git/' in normalized_path or normalized_path.endswith('/.git'):
+        return True
+        
+    # Check common git file patterns
+    git_patterns = [
+        '.git/refs/',
+        '.git/logs/',
+        '.git/ORIG_HEAD',
+        '.git/FETCH_HEAD',
+        '.git/HEAD',
+        '.git/index',
+        '.git/packed-refs',
+        '.git/config',
+        '.git/description',
+        '.git/hooks/',
+        '.git/info/',
+        '.git/objects/'
+    ]
+    
+    for pattern in git_patterns:
+        if pattern in normalized_path:
+            return True
+            
+    return False
 
 def get_git_tracked_files(repo_path: str) -> List[str]:
     """Get list of tracked files in a git repository."""
@@ -20,7 +50,7 @@ def get_git_tracked_files(repo_path: str) -> List[str]:
         
         for item in repo.index.entries:
             file_path = os.path.join(repo_path, item[0])
-            if os.path.isfile(file_path):
+            if os.path.isfile(file_path) and not is_git_file(file_path):
                 tracked_files.append(file_path)
                 
         return tracked_files
@@ -33,6 +63,9 @@ def scan_git_history(repo_path: str, exclude_patterns: List[str], context_size: 
     """Scan git commit history for API key leaks."""
     try:
         import git
+        # Deferred import to avoid circular dependency
+        from apikeyleak.core.scanner import scan_file, should_skip_file
+        
         repo = git.Repo(repo_path)
         findings = []
         

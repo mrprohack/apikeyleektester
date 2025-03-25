@@ -24,7 +24,20 @@ DEFAULT_EXCLUDE_PATTERNS = [
     '*.pyc', '*.pyo', '*.so', '*.dll', '*.class', '*.exe', 
     '.git/*', '.svn/*', '.hg/*', '.idea/*', '.vscode/*', 
     'node_modules/*', 'vendor/*', 'venv/*', 'env/*', '*.min.js',
-    '*.min.css', 'dist/*', 'build/*'
+    '*.min.css', 'dist/*', 'build/*',
+    # Git-specific patterns
+    '.git/refs/*',
+    '.git/logs/*',
+    '.git/ORIG_HEAD',
+    '.git/FETCH_HEAD',
+    '.git/HEAD',
+    '.git/index',
+    '.git/packed-refs',
+    '.git/config',
+    '.git/description',
+    '.git/hooks/*',
+    '.git/info/*',
+    '.git/objects/*'
 ]
 
 # Extended list of regex patterns to detect various API keys with improved patterns

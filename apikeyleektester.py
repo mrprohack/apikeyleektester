@@ -67,6 +67,8 @@ def main():
                        help="Suggest remediation for detected leaks")
     parser.add_argument("--silent", action="store_true",
                        help="Suppress progress output, display only findings")
+    parser.add_argument("--no-git-files", action="store_true",
+                       help="Exclude all Git-related files from scanning (.git directory and its contents)")
     args = parser.parse_args()
 
     # Load config file if provided
@@ -92,6 +94,11 @@ def main():
     if args.git_scan or args.git_history:
         gitignore_patterns = get_gitignore_exclusions(args.path)
         exclude_patterns.extend(gitignore_patterns)
+        
+    # Exclude all git files if requested
+    if args.no_git_files:
+        exclude_patterns.append('.git/**')
+        exclude_patterns.append('.git*')
         
     # Install git pre-commit hook if requested
     if args.install_hook:

@@ -37,6 +37,16 @@ pip install -r requirements.txt
 python apikeyleektester.py /path/to/your/code
 ```
 
+### Avoiding False Positives
+
+```bash
+# Exclude Git files to avoid false positives from Git hashes
+python apikeyleektester.py /path/to/your/code --no-git-files
+
+# Or use the git-scan option to only scan tracked files
+python apikeyleektester.py /path/to/your/code --git-scan
+```
+
 ### Advanced Usage
 
 ```bash
@@ -96,6 +106,7 @@ python apikeyleektester.py /path/to/your/code --incremental
 - `--python-hook`: Use Python version of git hook (more robust, cross-platform)
 - `--remediation`: Show remediation suggestions for detected leaks
 - `--silent`: Suppress progress output, display only findings
+- `--no-git-files`: Exclude all Git-related files from scanning to avoid false positives from Git hashes
 
 ## Configuration Files
 

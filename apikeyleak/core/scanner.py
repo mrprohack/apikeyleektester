@@ -18,6 +18,14 @@ from apikeyleak.core.patterns import (
 
 def should_skip_file(file_path: str, exclude_patterns: List[str]) -> bool:
     """Determine if a file should be skipped based on exclude patterns."""
+    # Import here to avoid circular import
+    from apikeyleak.git.integration import is_git_file
+    
+    # First check if it's a Git file
+    if is_git_file(file_path):
+        return True
+        
+    # Then check against exclude patterns
     for pattern in exclude_patterns:
         if fnmatch.fnmatch(file_path, pattern) or fnmatch.fnmatch(os.path.basename(file_path), pattern):
             return True
