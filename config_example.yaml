@@ -1,0 +1,21 @@
+# API Key Leak Detector Configuration
+# This file demonstrates available configuration options
+
+# Scan options
+exclude:
+  - "*.log"
+  - "tests/fixtures/*"
+  - "docs/*"
+  - "backups/*"
+
+# Output options
+format: "html"
+output: "api_key_scan_report.html"
+context: 3
+remediation: true
+
+# Custom patterns file path
+custom_patterns: "custom_patterns_example.json"
+
+# Performance options
+workers: 4 
