@@ -9,9 +9,14 @@ A powerful and flexible tool for detecting potential API key leaks in your codeb
 - **Context-Aware Reporting**: Shows code context around detected leaks
 - **Multi-Threading Support**: Fast scanning of large codebases
 - **Customizable**: Add your own regex patterns or exclude specific files/directories
-- **Multiple Output Formats**: Choose between text, JSON, or CSV output
+- **Multiple Output Formats**: Choose between text, JSON, CSV, or interactive HTML reports
 - **Severity Classification**: Prioritize findings based on risk level (HIGH, MEDIUM, LOW)
 - **Masked Key Display**: Securely displays sensitive information
+- **Git Integration**: Scan tracked files, commit history, and use pre-commit hooks
+- **Progress Tracking**: Visual progress bar for large scans
+- **Configuration Files**: Use YAML/JSON configuration for consistent scans
+- **Incremental Scanning**: Only scan files changed since the last scan
+- **Remediation Suggestions**: Get actionable advice on how to fix detected leaks
 
 ## Installation
 
@@ -46,18 +51,68 @@ python apikeyleektester.py /path/to/your/code --custom-patterns my_patterns.json
 
 # Control parallel processing
 python apikeyleektester.py /path/to/your/code --workers 8
+
+# Generate an interactive HTML report with remediation suggestions
+python apikeyleektester.py /path/to/your/code --format html --output report.html --remediation
+
+# Use a configuration file for consistent settings
+python apikeyleektester.py /path/to/your/code --config scan_config.yaml
+```
+
+### Git Integration
+
+```bash
+# Only scan git-tracked files (ignores untracked and .gitignore files)
+python apikeyleektester.py /path/to/your/code --git-scan
+
+# Scan git commit history for leaked keys
+python apikeyleektester.py /path/to/your/code --git-history
+
+# Install a pre-commit hook to prevent committing leaked keys
+python apikeyleektester.py /path/to/your/code --install-hook
+
+# Install a Python-based pre-commit hook (more robust than bash)
+python apikeyleektester.py /path/to/your/code --install-hook --python-hook
+
+# Only scan files that have changed since the last scan
+python apikeyleektester.py /path/to/your/code --incremental
 ```
 
 ### Command Line Options
 
 - `path`: Path to the file or directory to scan
 - `-o, --output`: Path to save the scan results
-- `--format`: Output format (text, json, or csv)
+- `--format`: Output format (text, json, csv, or html)
 - `--exclude`: Patterns of files/directories to exclude
 - `--context`: Number of context lines to show before and after findings
 - `--workers`: Number of worker threads for parallel scanning
 - `--custom-patterns`: Path to JSON file with custom regex patterns
 - `--no-context`: Don't show context lines in the output
+- `--config`: Path to YAML or JSON configuration file
+- `--git-scan`: Only scan git-tracked files
+- `--git-history`: Scan git commit history for leaks
+- `--incremental`: Only scan files changed since last scan
+- `--install-hook`: Install git pre-commit hook
+- `--python-hook`: Use Python version of git hook (more robust, cross-platform)
+- `--remediation`: Show remediation suggestions for detected leaks
+- `--silent`: Suppress progress output, display only findings
+
+## Configuration Files
+
+You can use YAML or JSON configuration files to store your scan settings:
+
+```yaml
+# Example config_example.yaml
+exclude:
+  - "*.log"
+  - "tests/fixtures/*"
+format: "html"
+output: "api_key_scan_report.html"
+context: 3
+remediation: true
+custom_patterns: "custom_patterns_example.json"
+workers: 4
+```
 
 ## Creating Custom Pattern Files
 
@@ -89,11 +144,54 @@ HIGH: 1 MEDIUM: 2 LOW: 0
         43: aws_secret_access_key='wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY')
       Context after:
         44: s3 = client.list_buckets()
+      Remediation: Use AWS Parameter Store, Secrets Manager, or environment variables with proper IAM roles.
 
 /path/to/another_file.js:
   [MEDIUM] Line 15: Generic API Key
       Key: apiK****************H8gj
 ...
+```
+
+## HTML Reports
+
+The HTML report option provides an interactive interface to explore findings:
+- Filter by severity, key type, or filename
+- Sort findings 
+- View code context
+- Get remediation suggestions
+- Print or share findings easily
+
+## Continuous Integration
+
+You can add the API Key Leak Detector to your CI/CD pipelines:
+
+```yaml
+# Example GitHub Action workflow
+name: API Key Leak Check
+
+on: [push, pull_request]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Scan for API key leaks
+        run: python apikeyleektester.py . --format json --output leaks.json
+      - name: Check for leaks
+        run: |
+          if [ "$(jq '.total_findings' leaks.json)" -gt 0 ]; then
+            echo "API key leaks detected!"
+            exit 1
+          fi
 ```
 
 ## Security Considerations

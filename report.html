@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Key Leak Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; color: #333; }
+        h1 { color: #2c3e50; margin-bottom: 20px; }
+        .summary { display: flex; margin-bottom: 20px; background: #f5f5f5; padding: 15px; border-radius: 5px; }
+        .summary-item { margin-right: 30px; }
+        .summary-number { font-size: 24px; font-weight: bold; }
+        .filters { margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px; }
+        .finding { margin-bottom: 25px; padding: 15px; border-left: 5px solid #3498db; background: #f9f9f9; }
+        .finding.high { border-left-color: #e74c3c; }
+        .finding.medium { border-left-color: #f39c12; }
+        .finding.low { border-left-color: #2ecc71; }
+        .file-path { color: #2c3e50; font-weight: bold; margin-bottom: 10px; }
+        .leak-info { display: flex; margin-bottom: 10px; }
+        .leak-type { width: 200px; font-weight: bold; }
+        .leak-text { font-family: monospace; background: #eee; padding: 3px 6px; border-radius: 3px; }
+        .context { background: #fff; padding: 10px; border: 1px solid #ddd; font-family: monospace; white-space: pre; overflow-x: auto; }
+        .remediation { background: #e8f4fc; padding: 10px; margin-top: 10px; border-radius: 3px; }
+        .severity { display: inline-block; padding: 3px 8px; border-radius: 3px; color: white; font-size: 12px; font-weight: bold; }
+        .severity.high { background: #e74c3c; }
+        .severity.medium { background: #f39c12; }
+        .severity.low { background: #2ecc71; }
+        select, input { padding: 8px; margin-right: 10px; border: 1px solid #ddd; border-radius: 3px; }
+        button { padding: 8px 15px; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #2980b9; }
+    </style>
+</head>
+<body>
+    <h1>API Key Leak Scan Report</h1>
+    
+    <div class="summary">
+        <div class="summary-item">
+            <div class="summary-number">17</div>
+            <div>Total Findings</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-number">11</div>
+            <div>High Severity</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-number">6</div>
+            <div>Medium Severity</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-number">0</div>
+            <div>Low Severity</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-number">3</div>
+            <div>Files Affected</div>
+        </div>
+    </div>
+    
+    <div class="filters">
+        <h3>Filters</h3>
+        <div>
+            <select id="severityFilter">
+                <option value="all">All Severities</option>
+                <option value="HIGH">High</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="LOW">Low</option>
+            </select>
+            
+            <select id="typeFilter">
+                <option value="all">All Types</option>
+                
+                <option value="AWS Secret Key">AWS Secret Key</option>
+                
+                <option value="Generic API Key">Generic API Key</option>
+                
+                <option value="GitHub Personal Access Token (old)">GitHub Personal Access Token (old)</option>
+                
+                <option value="Google API Key">Google API Key</option>
+                
+                <option value="JWT Token">JWT Token</option>
+                
+                <option value="Sensitive Env Var">Sensitive Env Var</option>
+                
+                <option value="Stripe Live Key">Stripe Live Key</option>
+                
+            </select>
+            
+            <input type="text" id="fileFilter" placeholder="Filter by filename...">
+            
+            <button onclick="applyFilters()">Apply Filters</button>
+            <button onclick="resetFilters()">Reset</button>
+        </div>
+    </div>
+    
+    <div id="findings">
+    
+        <div class="finding high" 
+             data-severity="HIGH"
+             data-type="GitHub Personal Access Token (old)"
+             data-file="test_files/python/api_keys.py">
+            <div class="file-path">
+                test_files/python/api_keys.py:6
+                <span class="severity high">HIGH</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">GitHub Personal Access Token (old)</div>
+                <div class="leak-text">ghp_********************************wxyz</div>
+            </div>
+            
+            <div class="context">4: 
+
+5: # GitHub Token
+
+6: <mark>ghp_1234567890abcdefghijklmnopqrstuvwxyz</mark>
+7: 
+
+8: # Stripe Keys
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Use GitHub secrets for workflows, or credential manager for local development.
+            </div>
+            
+        </div>
+    
+        <div class="finding medium" 
+             data-severity="MEDIUM"
+             data-type="Sensitive Env Var"
+             data-file="test_files/python/api_keys.py">
+            <div class="file-path">
+                test_files/python/api_keys.py:6
+                <span class="severity medium">MEDIUM</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">Sensitive Env Var</div>
+                <div class="leak-text">ghp_********************************wxyz</div>
+            </div>
+            
+            <div class="context">4: 
+
+5: # GitHub Token
+
+6: <mark>ghp_1234567890abcdefghijklmnopqrstuvwxyz</mark>
+7: 
+
+8: # Stripe Keys
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Store this sensitive data in environment variables or a secure secrets management solution.
+            </div>
+            
+        </div>
+    
+        <div class="finding high" 
+             data-severity="HIGH"
+             data-type="Stripe Live Key"
+             data-file="test_files/python/api_keys.py">
+            <div class="file-path">
+                test_files/python/api_keys.py:9
+                <span class="severity high">HIGH</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">Stripe Live Key</div>
+                <div class="leak-text">sk_l************************klmn</div>
+            </div>
+            
+            <div class="context">7: 
+
+8: # Stripe Keys
+
+9: <mark>sk_live_1234567890abcdefghijklmn</mark>
+10: stripe_test_key = 'sk_test_1234567890abcdefghijklmn'
+
+11: 
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Store Stripe keys in server-side environment variables, never in client code.
+            </div>
+            
+        </div>
+    
+        <div class="finding medium" 
+             data-severity="MEDIUM"
+             data-type="Generic API Key"
+             data-file="test_files/python/api_keys.py">
+            <div class="file-path">
+                test_files/python/api_keys.py:13
+                <span class="severity medium">MEDIUM</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">Generic API Key</div>
+                <div class="leak-text">api_***********************************************xyz'</div>
+            </div>
+            
+            <div class="context">11: 
+
+12: # Google API Key
+
+13: <mark>api_key = 'AIzaSyA1234567890abcdefghijklmnopqrstuvwxyz'</mark>
+14: 
+
+15: # JWT Token
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Store API keys in environment variables or a secure secrets manager.
+            </div>
+            
+        </div>
+    
+        <div class="finding high" 
+             data-severity="HIGH"
+             data-type="Google API Key"
+             data-file="test_files/python/api_keys.py">
+            <div class="file-path">
+                test_files/python/api_keys.py:13
+                <span class="severity high">HIGH</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">Google API Key</div>
+                <div class="leak-text">AIza*******************************stuv</div>
+            </div>
+            
+            <div class="context">11: 
+
+12: # Google API Key
+
+13: <mark>AIzaSyA1234567890abcdefghijklmnopqrstuv</mark>
+14: 
+
+15: # JWT Token
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Use GCP Secret Manager and service accounts with least privilege.
+            </div>
+            
+        </div>
+    
+        <div class="finding medium" 
+             data-severity="MEDIUM"
+             data-type="Sensitive Env Var"
+             data-file="test_files/python/api_keys.py">
+            <div class="file-path">
+                test_files/python/api_keys.py:13
+                <span class="severity medium">MEDIUM</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">Sensitive Env Var</div>
+                <div class="leak-text">AIza***********************************wxyz</div>
+            </div>
+            
+            <div class="context">11: 
+
+12: # Google API Key
+
+13: <mark>AIzaSyA1234567890abcdefghijklmnopqrstuvwxyz</mark>
+14: 
+
+15: # JWT Token
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Store this sensitive data in environment variables or a secure secrets management solution.
+            </div>
+            
+        </div>
+    
+        <div class="finding high" 
+             data-severity="HIGH"
+             data-type="JWT Token"
+             data-file="test_files/python/api_keys.py">
+            <div class="file-path">
+                test_files/python/api_keys.py:16
+                <span class="severity high">HIGH</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">JWT Token</div>
+                <div class="leak-text">eyJh***************************************************************************************************************************************************sw5c</div>
+            </div>
+            
+            <div class="context">14: 
+
+15: # JWT Token
+
+16: <mark>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</mark>
+17: 
+
+18: # Example keys (should be ignored)
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Use short-lived tokens with a secure refresh mechanism.
+            </div>
+            
+        </div>
+    
+        <div class="finding medium" 
+             data-severity="MEDIUM"
+             data-type="Sensitive Env Var"
+             data-file="test_files/python/api_keys.py">
+            <div class="file-path">
+                test_files/python/api_keys.py:16
+                <span class="severity medium">MEDIUM</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">Sensitive Env Var</div>
+                <div class="leak-text">eyJh***************************************************************************************************************************************************sw5c</div>
+            </div>
+            
+            <div class="context">14: 
+
+15: # JWT Token
+
+16: <mark>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</mark>
+17: 
+
+18: # Example keys (should be ignored)
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Store this sensitive data in environment variables or a secure secrets management solution.
+            </div>
+            
+        </div>
+    
+        <div class="finding high" 
+             data-severity="HIGH"
+             data-type="GitHub Personal Access Token (old)"
+             data-file="test_files/config/credentials.yaml">
+            <div class="file-path">
+                test_files/config/credentials.yaml:8
+                <span class="severity high">HIGH</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">GitHub Personal Access Token (old)</div>
+                <div class="leak-text">ghp_********************************wxyz</div>
+            </div>
+            
+            <div class="context">6: # GitHub Token
+
+7: github:
+
+8: <mark>ghp_1234567890abcdefghijklmnopqrstuvwxyz</mark>
+9: 
+
+10: # Stripe Keys
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Use GitHub secrets for workflows, or credential manager for local development.
+            </div>
+            
+        </div>
+    
+        <div class="finding high" 
+             data-severity="HIGH"
+             data-type="Stripe Live Key"
+             data-file="test_files/config/credentials.yaml">
+            <div class="file-path">
+                test_files/config/credentials.yaml:12
+                <span class="severity high">HIGH</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">Stripe Live Key</div>
+                <div class="leak-text">sk_l************************klmn</div>
+            </div>
+            
+            <div class="context">10: # Stripe Keys
+
+11: stripe:
+
+12: <mark>sk_live_1234567890abcdefghijklmn</mark>
+13:   test_key: sk_test_1234567890abcdefghijklmn
+
+14: 
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Store Stripe keys in server-side environment variables, never in client code.
+            </div>
+            
+        </div>
+    
+        <div class="finding medium" 
+             data-severity="MEDIUM"
+             data-type="Generic API Key"
+             data-file="test_files/config/credentials.yaml">
+            <div class="file-path">
+                test_files/config/credentials.yaml:17
+                <span class="severity medium">MEDIUM</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">Generic API Key</div>
+                <div class="leak-text">api_********************************************wxyz</div>
+            </div>
+            
+            <div class="context">15: # Google API Key
+
+16: google:
+
+17: <mark>api_key: AIzaSyA1234567890abcdefghijklmnopqrstuvwxyz</mark>
+18: 
+
+19: # Example keys (should be ignored)
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Store API keys in environment variables or a secure secrets manager.
+            </div>
+            
+        </div>
+    
+        <div class="finding high" 
+             data-severity="HIGH"
+             data-type="AWS Secret Key"
+             data-file="test_files/config/credentials.yaml">
+            <div class="file-path">
+                test_files/config/credentials.yaml:17
+                <span class="severity high">HIGH</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">AWS Secret Key</div>
+                <div class="leak-text">aSyA*********************************xyz
+</div>
+            </div>
+            
+            <div class="context">15: # Google API Key
+
+16: google:
+
+17: <mark>aSyA1234567890abcdefghijklmnopqrstuvwxyz
+</mark>
+18: 
+
+19: # Example keys (should be ignored)
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Use AWS Parameter Store, Secrets Manager, or environment variables with proper IAM roles.
+            </div>
+            
+        </div>
+    
+        <div class="finding high" 
+             data-severity="HIGH"
+             data-type="Google API Key"
+             data-file="test_files/config/credentials.yaml">
+            <div class="file-path">
+                test_files/config/credentials.yaml:17
+                <span class="severity high">HIGH</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">Google API Key</div>
+                <div class="leak-text">AIza*******************************stuv</div>
+            </div>
+            
+            <div class="context">15: # Google API Key
+
+16: google:
+
+17: <mark>AIzaSyA1234567890abcdefghijklmnopqrstuv</mark>
+18: 
+
+19: # Example keys (should be ignored)
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Use GCP Secret Manager and service accounts with least privilege.
+            </div>
+            
+        </div>
+    
+        <div class="finding high" 
+             data-severity="HIGH"
+             data-type="GitHub Personal Access Token (old)"
+             data-file="test_files/javascript/config.js">
+            <div class="file-path">
+                test_files/javascript/config.js:11
+                <span class="severity high">HIGH</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">GitHub Personal Access Token (old)</div>
+                <div class="leak-text">ghp_********************************wxyz</div>
+            </div>
+            
+            <div class="context">9:     // GitHub Configuration
+
+10:     github: {
+
+11: <mark>ghp_1234567890abcdefghijklmnopqrstuvwxyz</mark>
+12:     },
+
+13: 
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Use GitHub secrets for workflows, or credential manager for local development.
+            </div>
+            
+        </div>
+    
+        <div class="finding medium" 
+             data-severity="MEDIUM"
+             data-type="Sensitive Env Var"
+             data-file="test_files/javascript/config.js">
+            <div class="file-path">
+                test_files/javascript/config.js:11
+                <span class="severity medium">MEDIUM</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">Sensitive Env Var</div>
+                <div class="leak-text">ghp_********************************wxyz</div>
+            </div>
+            
+            <div class="context">9:     // GitHub Configuration
+
+10:     github: {
+
+11: <mark>ghp_1234567890abcdefghijklmnopqrstuvwxyz</mark>
+12:     },
+
+13: 
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Store this sensitive data in environment variables or a secure secrets management solution.
+            </div>
+            
+        </div>
+    
+        <div class="finding high" 
+             data-severity="HIGH"
+             data-type="Stripe Live Key"
+             data-file="test_files/javascript/config.js">
+            <div class="file-path">
+                test_files/javascript/config.js:16
+                <span class="severity high">HIGH</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">Stripe Live Key</div>
+                <div class="leak-text">sk_l************************klmn</div>
+            </div>
+            
+            <div class="context">14:     // Stripe Configuration
+
+15:     stripe: {
+
+16: <mark>sk_live_1234567890abcdefghijklmn</mark>
+17:         testKey: 'sk_test_1234567890abcdefghijklmn'
+
+18:     },
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Store Stripe keys in server-side environment variables, never in client code.
+            </div>
+            
+        </div>
+    
+        <div class="finding high" 
+             data-severity="HIGH"
+             data-type="Google API Key"
+             data-file="test_files/javascript/config.js">
+            <div class="file-path">
+                test_files/javascript/config.js:22
+                <span class="severity high">HIGH</span>
+            </div>
+            
+            <div class="leak-info">
+                <div class="leak-type">Google API Key</div>
+                <div class="leak-text">AIza*******************************stuv</div>
+            </div>
+            
+            <div class="context">20:     // Google Configuration
+
+21:     google: {
+
+22: <mark>AIzaSyA1234567890abcdefghijklmnopqrstuv</mark>
+23:     },
+
+24: 
+
+</div>
+            
+            
+            <div class="remediation">
+                <strong>Remediation Suggestion:</strong> Use GCP Secret Manager and service accounts with least privilege.
+            </div>
+            
+        </div>
+    
+    </div>
+    
+    <script>
+        function applyFilters() {
+            const severityFilter = document.getElementById('severityFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const fileFilter = document.getElementById('fileFilter').value.toLowerCase();
+            
+            const findings = document.querySelectorAll('.finding');
+            
+            findings.forEach(finding => {
+                const severity = finding.getAttribute('data-severity');
+                const type = finding.getAttribute('data-type');
+                const file = finding.getAttribute('data-file').toLowerCase();
+                
+                const severityMatch = severityFilter === 'all' || severity === severityFilter;
+                const typeMatch = typeFilter === 'all' || type === typeFilter;
+                const fileMatch = fileFilter === '' || file.includes(fileFilter);
+                
+                if (severityMatch && typeMatch && fileMatch) {
+                    finding.style.display = 'block';
+                } else {
+                    finding.style.display = 'none';
+                }
+            });
+        }
+        
+        function resetFilters() {
+            document.getElementById('severityFilter').value = 'all';
+            document.getElementById('typeFilter').value = 'all';
+            document.getElementById('fileFilter').value = '';
+            
+            document.querySelectorAll('.finding').forEach(finding => {
+                finding.style.display = 'block';
+            });
+        }
+        
+        // Initial load
+        document.addEventListener('DOMContentLoaded', function() {
+            applyFilters();
+        });
+    </script>
+</body>
+</html>
