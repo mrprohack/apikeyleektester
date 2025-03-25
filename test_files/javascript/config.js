@@ -2,24 +2,24 @@
 const config = {
     // AWS Configuration
     aws: {
-        accessKeyId: 'AKIA_FAKE_EXAMPLE_KEY_FOR_TESTING',
-        secretAccessKey: 'wJalrFAKEKEYFORTESTINGEXAMPLEKEY'
+        accessKeyId: 'AKIAMOCKAWSKEY0000000000000',
+        secretAccessKey: 'MockAwsSecretKey000000000000000000000000'
     },
 
     // GitHub Configuration
     github: {
-        token: 'ghp_FAKEGITHUBTOKEN123456789012345'
+        token: 'ghp_m0ckgithubtoken000000000000000'
     },
 
     // Stripe Configuration
     stripe: {
-        liveKey: 'sk_live_FAKESTRIPEKEY123TESTING',
-        testKey: 'sk_test_FAKESTRIPEKEY123TESTING'
+        liveKey: 'sk_notareallive_0000000000000000',
+        testKey: 'sk_notrealtest_0000000000000000'
     },
 
     // Google Configuration
     google: {
-        apiKey: 'AIza_FAKE_GOOGLE_API_KEY_TESTING'
+        apiKey: 'NotARealGoogleKey000000000000000'
     },
 
     // Example configurations (should be ignored)
